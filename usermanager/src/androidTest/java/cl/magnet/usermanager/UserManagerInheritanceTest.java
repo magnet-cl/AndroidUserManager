@@ -2,6 +2,8 @@ package cl.magnet.usermanager;
 
 import android.test.ActivityInstrumentationTestCase2;
 
+import cl.magnet.usermanager.DummyUserClasses.DummyUser;
+
 /**
  * Created by ignacio on 15-12-14.
  */

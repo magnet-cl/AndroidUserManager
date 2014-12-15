@@ -47,18 +47,6 @@ public class UserManagerTest extends ActivityInstrumentationTestCase2<DummyActiv
         assertEquals(user, storedUser);
     }
 
-    /*public void testFooThrowsIndexOutOfBoundsException() {
-        boolean thrown = false;
-
-        try {
-            foo.doStuff();
-        } catch (IndexOutOfBoundsException e) {
-            thrown = true;
-        }
-
-        assertTrue(thrown);
-    }*/
-
     public void testLoginUninitializedUser(){
         User user = new User();
 

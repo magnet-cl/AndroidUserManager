@@ -29,6 +29,8 @@ public class UserManager <T extends User> {
 
         Class userClass = user.getClass();
 
+        getEmptyConstructor(userClass);
+
         Field[] fields = getAllFields(userClass);
 
         for(Field field: fields){
@@ -39,20 +41,6 @@ public class UserManager <T extends User> {
 
         editor.putString(USER_CLASS, userClass.getName());
         editor.apply();
-    }
-
-    private Field[] getAllFields(Class userClass){
-        ArrayList<Field> fields = new ArrayList<Field>(
-                Arrays.asList(userClass.getDeclaredFields()));
-
-        Class parent = userClass.getSuperclass();
-
-        while (!parent.equals(Object.class)){
-            fields.addAll(Arrays.asList(parent.getDeclaredFields()));
-            parent = parent.getSuperclass();
-        }
-
-        return fields.toArray(new Field[fields.size()]);
     }
 
     public void logout(){
@@ -84,6 +72,20 @@ public class UserManager <T extends User> {
             return user;
         }
         return null;
+    }
+
+    private Field[] getAllFields(Class userClass){
+        ArrayList<Field> fields = new ArrayList<>(
+                Arrays.asList(userClass.getDeclaredFields()));
+
+        Class parent = userClass.getSuperclass();
+
+        while (!parent.equals(Object.class)){
+            fields.addAll(Arrays.asList(parent.getDeclaredFields()));
+            parent = parent.getSuperclass();
+        }
+
+        return fields.toArray(new Field[fields.size()]);
     }
 
     private void addFieldsValues(T user){
@@ -163,7 +165,8 @@ public class UserManager <T extends User> {
                 editor.putFloat(field.getName(), field.getFloat(user));
 
             } else {
-                throw new UnsupportedOperationException("Type is not supported");
+                throw new UnsupportedOperationException("Type of the field in the class is not" +
+                        "supported");
             }
         } catch (IllegalAccessException e) {
             e.printStackTrace();
@@ -177,6 +180,21 @@ public class UserManager <T extends User> {
 
         T user = null;
 
+        Constructor constructor = getEmptyConstructor(klass);
+
+        try {
+            constructor.setAccessible(true);
+            user = (T)constructor.newInstance();
+
+            // production code should handle these exceptions more gracefully
+        } catch (InstantiationException | InvocationTargetException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
+
+        return user;
+    }
+
+    private Constructor getEmptyConstructor(Class klass){
         Constructor[] constructors = klass.getDeclaredConstructors();
         Constructor constructor = null;
         for (Constructor auxConstructor : constructors) {
@@ -192,15 +210,6 @@ public class UserManager <T extends User> {
                     "constructor");
         }
 
-        try {
-            constructor.setAccessible(true);
-            user = (T)constructor.newInstance();
-
-            // production code should handle these exceptions more gracefully
-        } catch (InstantiationException | InvocationTargetException | IllegalAccessException e) {
-            e.printStackTrace();
-        }
-
-        return user;
+        return constructor;
     }
 }
