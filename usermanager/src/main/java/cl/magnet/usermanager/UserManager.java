@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -88,54 +89,11 @@ public class UserManager <T extends User> {
         return fields.toArray(new Field[fields.size()]);
     }
 
-    private void addFieldsValues(T user){
-
-        Class userClass = user.getClass();
-        Field[] fields = getAllFields(userClass);
-
-        for(Field field: fields){
-            retrieveField(field, user);
-        }
-    }
-
-    private void retrieveField(Field field, T user){
-
-        field.setAccessible(true);
-
-        Class type = field.getType();
-        try {
-
-            if (type.equals(String.class)){
-                Log.d(TAG, "It's a string!");
-                field.set(user, mUserCredentials.getString(field.getName(), null));
-
-            }else if (type.equals(Long.TYPE) || type.equals(Long.class)){
-                Log.d(TAG, "It's a long!");
-                field.setLong(user, mUserCredentials.getLong(field.getName(), 0L));
-
-            }else if (type.equals(Integer.TYPE) || type.equals(Integer.class)){
-                Log.d(TAG, "It's a integer!");
-                field.setInt(user, mUserCredentials.getInt(field.getName(), 0));
-
-            }else if (type.equals(Boolean.TYPE) || type.equals(Boolean.class)){
-                Log.d(TAG, "It's a boolean!");
-                field.setBoolean(user, mUserCredentials.getBoolean(field.getName(), false));
-
-            }else if (type.equals(Float.TYPE) || type.equals(Float.class)){
-                Log.d(TAG, "It's a float!");
-                field.setFloat(user, mUserCredentials.getFloat(field.getName(), 0.0f));
-
-            } else {
-                throw new UnsupportedOperationException("Type is not supported");
-            }
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        }
-
-        field.setAccessible(false);
-    }
-
     private void storeField(Field field, T user){
+
+        if(isIgnored(field)) {
+            return;
+        }
 
         SharedPreferences.Editor editor = mUserCredentials.edit();
 
@@ -173,6 +131,67 @@ public class UserManager <T extends User> {
         }
 
         editor.apply();
+        field.setAccessible(false);
+    }
+
+    private boolean isIgnored(Field field){
+        Annotation annotation = field.getAnnotation(Ignore.class);
+
+        if(annotation == null){
+            return false;
+        }
+
+        return true;
+    }
+
+    private void addFieldsValues(T user){
+
+        Class userClass = user.getClass();
+        Field[] fields = getAllFields(userClass);
+
+        for(Field field: fields){
+            retrieveField(field, user);
+        }
+    }
+
+    private void retrieveField(Field field, T user){
+
+        if(isIgnored(field)) {
+            return;
+        }
+
+        field.setAccessible(true);
+
+        Class type = field.getType();
+        try {
+
+            if (type.equals(String.class)){
+                Log.d(TAG, "It's a string!");
+                field.set(user, mUserCredentials.getString(field.getName(), null));
+
+            }else if (type.equals(Long.TYPE) || type.equals(Long.class)){
+                Log.d(TAG, "It's a long!");
+                field.setLong(user, mUserCredentials.getLong(field.getName(), 0L));
+
+            }else if (type.equals(Integer.TYPE) || type.equals(Integer.class)){
+                Log.d(TAG, "It's a integer!");
+                field.setInt(user, mUserCredentials.getInt(field.getName(), 0));
+
+            }else if (type.equals(Boolean.TYPE) || type.equals(Boolean.class)){
+                Log.d(TAG, "It's a boolean!");
+                field.setBoolean(user, mUserCredentials.getBoolean(field.getName(), false));
+
+            }else if (type.equals(Float.TYPE) || type.equals(Float.class)){
+                Log.d(TAG, "It's a float!");
+                field.setFloat(user, mUserCredentials.getFloat(field.getName(), 0.0f));
+
+            } else {
+                throw new UnsupportedOperationException("Type is not supported");
+            }
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+
         field.setAccessible(false);
     }
 
