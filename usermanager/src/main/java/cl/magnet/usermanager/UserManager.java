@@ -7,7 +7,6 @@ import android.util.Log;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.TypeVariable;
 
 /**
  * Created by ignacio on 14-12-14.
@@ -37,13 +36,13 @@ public class UserManager <T extends User> {
         SharedPreferences.Editor editor = mUserCredentials.edit();
 
         editor.putString(USER_CLASS, userClass.getName());
-        editor.commit();
+        editor.apply();
     }
 
     public void logout(){
         SharedPreferences.Editor editor = mUserCredentials.edit();
         editor.clear();
-        editor.commit();
+        editor.apply();
     }
 
     public boolean isUserLogged(){
@@ -55,7 +54,7 @@ public class UserManager <T extends User> {
         if(isUserLogged()){
 
             String userClass = mUserCredentials.getString(USER_CLASS, "");
-            T user = null;
+            T user;
 
             try {
                 Class klass = Class.forName(userClass);
@@ -91,23 +90,23 @@ public class UserManager <T extends User> {
 
             if (type.equals(String.class)){
                 Log.d(TAG, "It's a string!");
-                field.set( user, mUserCredentials.getString(field.getName(), null));
+                field.set(user, mUserCredentials.getString(field.getName(), null));
 
             }else if (type.equals(Long.TYPE) || type.equals(Long.class)){
                 Log.d(TAG, "It's a long!");
-                field.setLong( user, mUserCredentials.getLong(field.getName(), 0L));
+                field.setLong(user, mUserCredentials.getLong(field.getName(), 0L));
 
             }else if (type.equals(Integer.TYPE) || type.equals(Integer.class)){
                 Log.d(TAG, "It's a integer!");
-                field.setInt( user, mUserCredentials.getInt(field.getName(), 0));
+                field.setInt(user, mUserCredentials.getInt(field.getName(), 0));
 
             }else if (type.equals(Boolean.TYPE) || type.equals(Boolean.class)){
                 Log.d(TAG, "It's a boolean!");
-                field.setBoolean( user, mUserCredentials.getBoolean(field.getName(), false));
+                field.setBoolean(user, mUserCredentials.getBoolean(field.getName(), false));
 
             }else if (type.equals(Float.TYPE) || type.equals(Float.class)){
                 Log.d(TAG, "It's a float!");
-                field.setFloat( user, mUserCredentials.getFloat(field.getName(), 0.0f));
+                field.setFloat(user, mUserCredentials.getFloat(field.getName(), 0.0f));
 
             } else {
                 throw new UnsupportedOperationException("Type is not supported");
@@ -155,7 +154,7 @@ public class UserManager <T extends User> {
             e.printStackTrace();
         }
 
-        editor.commit();
+        editor.apply();
         field.setAccessible(false);
     }
 
@@ -165,23 +164,20 @@ public class UserManager <T extends User> {
 
         Constructor[] constructors = klass.getDeclaredConstructors();
         Constructor constructor = null;
-        for (int i = 0; i < constructors.length; i++) {
-            constructor = constructors[i];
+        for (Constructor auxConstructor : constructors) {
+            constructor = auxConstructor;
             if (constructor.getGenericParameterTypes().length == 0) {
                 break;
             }
         }
 
         try {
+            assert constructor != null;
             constructor.setAccessible(true);
             user = (T)constructor.newInstance();
 
             // production code should handle these exceptions more gracefully
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
+        } catch (InstantiationException | InvocationTargetException | IllegalAccessException e) {
             e.printStackTrace();
         }
 

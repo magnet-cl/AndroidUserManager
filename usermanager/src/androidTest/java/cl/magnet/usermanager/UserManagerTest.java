@@ -21,7 +21,7 @@ public class UserManagerTest extends ActivityInstrumentationTestCase2<DummyActiv
     protected void setUp() throws Exception {
         super.setUp();
         setActivityInitialTouchMode(false);
-        manager = new UserManager<User>(getActivity());
+        manager = new UserManager<>(getActivity());
     }
 
     public void testCreateUserManager(){
