@@ -7,6 +7,8 @@ import android.util.Log;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Created by ignacio on 14-12-14.
@@ -27,7 +29,7 @@ public class UserManager <T extends User> {
 
         Class userClass = user.getClass();
 
-        Field[] fields = userClass.getDeclaredFields();
+        Field[] fields = getAllFields(userClass);
 
         for(Field field: fields){
             storeField(field, user);
@@ -37,6 +39,20 @@ public class UserManager <T extends User> {
 
         editor.putString(USER_CLASS, userClass.getName());
         editor.apply();
+    }
+
+    private Field[] getAllFields(Class userClass){
+        ArrayList<Field> fields = new ArrayList<Field>(
+                Arrays.asList(userClass.getDeclaredFields()));
+
+        Class parent = userClass.getSuperclass();
+
+        while (!parent.equals(Object.class)){
+            fields.addAll(Arrays.asList(parent.getDeclaredFields()));
+            parent = parent.getSuperclass();
+        }
+
+        return fields.toArray(new Field[fields.size()]);
     }
 
     public void logout(){
@@ -59,22 +75,21 @@ public class UserManager <T extends User> {
             try {
                 Class klass = Class.forName(userClass);
                 user = constructUser(klass);
+
                 addFieldsValues(user);
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
                 return null;
             }
-
             return user;
         }
-
         return null;
     }
 
     private void addFieldsValues(T user){
 
         Class userClass = user.getClass();
-        Field[] fields = userClass.getDeclaredFields();
+        Field[] fields = getAllFields(userClass);
 
         for(Field field: fields){
             retrieveField(field, user);
@@ -171,8 +186,13 @@ public class UserManager <T extends User> {
             }
         }
 
+        assert constructor != null;
+        if(constructor.getGenericParameterTypes().length != 0){
+            throw new UnsupportedOperationException("User class needs to have an empty " +
+                    "constructor");
+        }
+
         try {
-            assert constructor != null;
             constructor.setAccessible(true);
             user = (T)constructor.newInstance();
 

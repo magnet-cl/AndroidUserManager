@@ -24,6 +24,12 @@ public class UserManagerTest extends ActivityInstrumentationTestCase2<DummyActiv
         manager = new UserManager<>(getActivity());
     }
 
+    @Override
+    protected void tearDown() throws Exception {
+        manager.logout();
+        super.tearDown();
+    }
+
     public void testCreateUserManager(){
         assertNotNull(manager);
     }
@@ -41,6 +47,18 @@ public class UserManagerTest extends ActivityInstrumentationTestCase2<DummyActiv
         assertEquals(user, storedUser);
     }
 
+    /*public void testFooThrowsIndexOutOfBoundsException() {
+        boolean thrown = false;
+
+        try {
+            foo.doStuff();
+        } catch (IndexOutOfBoundsException e) {
+            thrown = true;
+        }
+
+        assertTrue(thrown);
+    }*/
+
     public void testLoginUninitializedUser(){
         User user = new User();
 
@@ -53,9 +71,4 @@ public class UserManagerTest extends ActivityInstrumentationTestCase2<DummyActiv
 
         assertEquals(user, storedUser);
     }
-
-    /*public void testUserInheritance(){
-        DummyUser user = new DummyUser("Ignacio", "123", "Dummy");
-        manager.logInUser(user);
-    }*/
 }
