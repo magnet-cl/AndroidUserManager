@@ -2,6 +2,8 @@ package cl.magnet.usermanager;
 
 import android.test.ActivityInstrumentationTestCase2;
 
+import junit.framework.Assert;
+
 /**
  * Created by ignacio on 14-12-14.
  */

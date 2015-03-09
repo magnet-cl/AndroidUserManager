@@ -207,7 +207,7 @@ public class UserManager <T extends User> {
 
             // production code should handle these exceptions more gracefully
         } catch (InstantiationException | InvocationTargetException | IllegalAccessException e) {
-            e.printStackTrace();
+
         }
 
         return user;

@@ -1,12 +1,12 @@
 package cl.magnet.magnetandroidusermanager;
 
-import android.support.v7.app.ActionBarActivity;
+import android.app.Activity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
 
-public class DummyActivity extends ActionBarActivity {
+public class DummyActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
