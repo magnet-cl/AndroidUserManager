@@ -2,10 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/MagnetAndroidUserManager.iml" filepath="$PROJECT_DIR$/MagnetAndroidUserManager.iml" />
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/usermanager/usermanager.iml" filepath="$PROJECT_DIR$/usermanager/usermanager.iml" />
+      <module fileurl="file://$PROJECT_DIR$/AndroidUserManager.iml" filepath="$PROJECT_DIR$/AndroidUserManager.iml" />
     </modules>
   </component>
 </project>
-
